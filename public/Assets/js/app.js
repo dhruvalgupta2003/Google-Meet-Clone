@@ -4,7 +4,7 @@ var AppProcess = (function(){
     var remote_vid_stream = [];
     var remote_aud_stream = [];
     var serverProcess;
-    var local_div;
+    var local_div = '';
     var audio;
     var isAudioMute = true;
     var rtp_aud_senders = [];
@@ -18,10 +18,19 @@ var AppProcess = (function(){
     var videoCamTrack;
 
     async function _init(SDP_function, my_connId){
-        serverProcess = SDP_function;
-        my_connection_id = my_connId;
-        eventProcess();
-        local_div = document.getElementById('localVideoPlayer');
+        try {
+            serverProcess = SDP_function;
+            my_connection_id = my_connId;
+            eventProcess();
+            local_div = document.getElementById('localVideoPlayer');
+            if (!local_div) {
+                // console.error('Local video player element not found!');
+                return;
+            }
+            // console.log("local::", local_div);
+        } catch (error) {
+            console.error('Error during initialization:', error);
+        }
     }
     function eventProcess(){
         $("#micMuteUnmute").on("click", async function(){
@@ -88,6 +97,7 @@ var AppProcess = (function(){
                     },
                     audio:false
                 })
+                // console.log(vstream);
             }else if(newVideoState == video_states.ScreenShare){
                 vstream = await navigator.mediaDevices.getDisplayMedia({
                     video:{
