@@ -37,7 +37,7 @@ Clone the repository to your local machine and follow the installation instructi
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/your-username/google-meet-clone.git](https://github.com/dhruvalgupta2003/Google-Meet-Clone)
+   git clone https://github.com/dhruvalgupta2003/Google-Meet-Clone
    ```
 
 2. Change into the project directory:
