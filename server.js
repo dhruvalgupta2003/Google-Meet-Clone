@@ -24,10 +24,13 @@ io.on("connection",(socket)=>{
             user_id: data.displayName,
             meeting_id: data.meetingid,
         });
+        var userCount = userconnections.length;
+        console.log(userCount);
         other_users.forEach((v)=>{
             socket.to(v.connectionId).emit("inform_other_about_me",{
                 other_user_id: data.displayName,
                 connId: socket.id,
+                useNumber: userCount,
             })
         })
         socket.emit("inform_me_about_other_user",other_users);
@@ -38,4 +41,35 @@ io.on("connection",(socket)=>{
             from_connId: socket.id,
         })
     })
+    socket.on("sendMessage", function(msg){
+        console.log(msg);
+        var mUser = userconnections.find((p)=>p.connectionId == socket.id);
+        if(mUser){
+            var meetingid = mUser.meeting_id;
+            var from = mUser.user_id;
+            var list = userconnections.filter((p)=> p.meeting_id == meetingid);
+            list.forEach((v)=>{
+                socket.to(v.connectionId).emit("showChatMessage",{
+                    from : from,
+                    message: msg,
+                })
+            })
+        }
+    });
+    socket.on("disconnect", function(){
+        console.log("User got Disconnected");
+        var disUser = userconnections.find((p)=> p.connectionId == socket.id);
+        if(disUser){
+            var meetingid = disUser.meeting_id;
+            userconnections = userconnections.filter((p)=>p.connectionId != socket.id);
+            var list = userconnections.filter((p)=> p.meeting_id == meetingid);
+            list.forEach((v) => {
+                var userNumberAfUserLeave = userconnections.length;
+                socket.to(v.connectionId).emit("inform_others_about_disconnected_user",{
+                    connId: socket.id,
+                    uNumber: userNumberAfUserLeave
+                });
+            });
+        }
+    });
 });
